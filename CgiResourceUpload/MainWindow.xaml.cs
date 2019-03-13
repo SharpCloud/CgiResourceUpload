@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CgiResourceUpload
 {
@@ -23,6 +13,47 @@ namespace CgiResourceUpload
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void BrowseSourceFolderClick(object sender, RoutedEventArgs e)
+        {
+            OpenFolderPicker(SourceFolderTextBox);
+        }
+
+        private void BrowseProcessedFolderClick(object sender, RoutedEventArgs e)
+        {
+            OpenFolderPicker(ProcessedFolderTextBox);
+        }
+
+        private void OpenFolderPicker(TextBox target)
+        {
+            var dialog = new CommonOpenFileDialog
+            {
+                IsFolderPicker = true
+            };
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                target.Text = dialog.FileName;
+            }
+        }
+
+        private void BrowseSpreadsheetClick(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Excel Files (*.xls;*.xlsx)|*.xls;*.xlsx"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                SpreadsheetTextBox.Text = dialog.FileName;
+            }
+        }
+
+        private void ProcessClick(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -5,8 +5,69 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CgiResourceUpload"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="CGI Resource Upload" Height="400" Width="800">
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Margin="0,0,5,0">
+            <Grid.Resources>
+                <Style x:Key="BrowseButtonStyle" TargetType="Button">
+                    <Setter Property="Margin" Value="5,0,0,0"/>
+                </Style>
+
+                <Style x:Key="TextBlockWithUpperMargin" TargetType="TextBlock">
+                    <Setter Property="Margin" Value="0,10,0,0"/>
+                </Style>
+            </Grid.Resources>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.ColumnSpan="2">SharpCloud Username</TextBlock>
+            <TextBox Grid.ColumnSpan="2" Grid.Row="1" />
+
+            <TextBlock Grid.ColumnSpan="2" Grid.Row="2" Style="{StaticResource TextBlockWithUpperMargin}">SharpCloud Password</TextBlock>
+            <PasswordBox Grid.ColumnSpan="2" Grid.Row="3"/>
+
+            <TextBlock Grid.ColumnSpan="2" Grid.Row="4" Style="{StaticResource TextBlockWithUpperMargin}">Source Directory</TextBlock>
+            <TextBox Grid.Row="5" Name="SourceFolderTextBox" />
+            <Button Grid.Column="1" Grid.Row="5" Content="Browse" Style="{StaticResource BrowseButtonStyle}" Click="BrowseSourceFolderClick" />
+
+            <TextBlock Grid.ColumnSpan="2" Grid.Row="6" Style="{StaticResource TextBlockWithUpperMargin}">Processed Directory</TextBlock>
+            <TextBox Grid.Row="7" Name="ProcessedFolderTextBox" />
+            <Button Grid.Column="1" Grid.Row="7" Content="Browse" Style="{StaticResource BrowseButtonStyle}" Click="BrowseProcessedFolderClick" />
+
+            <TextBlock Grid.ColumnSpan="2" Grid.Row="8" Style="{StaticResource TextBlockWithUpperMargin}">Spreadsheet Location</TextBlock>
+            <TextBox Grid.Row="9" Name="SpreadsheetTextBox"/>
+            <Button Grid.Column="1" Grid.Row="9" Content="Browse" Click="BrowseSpreadsheetClick" Style="{StaticResource BrowseButtonStyle}" />
+
+            <TextBlock Grid.ColumnSpan="2" Grid.Row="10" Style="{StaticResource TextBlockWithUpperMargin}">SharpCloud Story URL</TextBlock>
+            <TextBox Grid.Row="11" Grid.ColumnSpan="2" />
+
+            <Button Grid.Row="12" Grid.ColumnSpan="2" Height="30" VerticalAlignment="Bottom" Click="ProcessClick">Process</Button>
+        </Grid>
+
+        <TextBox Grid.Column="1" IsReadOnly="True"></TextBox>
     </Grid>
 </Window>
