@@ -10,9 +10,12 @@ namespace CgiResourceUpload
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly Logger _logger;
+
         public MainWindow()
         {
             InitializeComponent();
+            _logger = new Logger(LogTextBox);
         }
 
         private void BrowseSourceFolderClick(object sender, RoutedEventArgs e)
@@ -50,10 +53,61 @@ namespace CgiResourceUpload
                 SpreadsheetTextBox.Text = dialog.FileName;
             }
         }
-
         private void ProcessClick(object sender, RoutedEventArgs e)
         {
+            LogTextBox.Clear();
+            _logger.Log("Starting resource upload...");
+            Validate();
+        }
 
+        private bool Validate()
+        {
+            var usernameInvalid = string.IsNullOrWhiteSpace(UsernameTextBox.Text);
+            var passwordInvalid = PasswordEntryBox.SecurePassword.Length == 0;
+            var sourceInvalid = string.IsNullOrWhiteSpace(SourceFolderTextBox.Text);
+            var processedInvalid = string.IsNullOrWhiteSpace(ProcessedFolderTextBox.Text);
+            var spreadsheetInvalid = string.IsNullOrWhiteSpace(SpreadsheetTextBox.Text);
+            var urlInvalid = string.IsNullOrWhiteSpace(UrlTextBox.Text);
+
+            if (usernameInvalid)
+            {
+                _logger.LogError("SharpCloud username is empty");
+            }
+
+            if (passwordInvalid)
+            {
+                _logger.LogError("SharpCloud password is empty");
+            }
+
+            if (sourceInvalid)
+            {
+                _logger.LogError("Source directory is empty");
+            }
+
+            if (processedInvalid)
+            {
+                _logger.LogError("Processed directory is empty");
+            }
+
+            if (spreadsheetInvalid)
+            {
+                _logger.LogError("Spreadsheet location is empty");
+            }
+
+            if (urlInvalid)
+            {
+                _logger.LogError("SharpCloud story URL is empty");
+            }
+
+            var isValid =
+                usernameInvalid &&
+                passwordInvalid &&
+                sourceInvalid &&
+                processedInvalid &&
+                spreadsheetInvalid &&
+                urlInvalid;
+
+            return isValid;
         }
     }
 }
