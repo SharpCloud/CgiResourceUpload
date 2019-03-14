@@ -20,7 +20,20 @@ namespace CgiResourceUpload
 
             foreach (var path in directories)
             {
+                var success = ProcessSubdirectory(path);
+
+                if (success)
+                {
+                    var dirName = Path.GetFileName(path);
+                    var destination = Path.Combine(processedDirectory, dirName);
+                    Directory.Move(path, destination);
+                }
             }
+        }
+
+        private bool ProcessSubdirectory(string path)
+        {
+            return true;
         }
 
         private IList<ItemMetadata> ReadSpreadsheet(string spreadsheetPath)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace CgiResourceUpload
@@ -14,16 +15,16 @@ namespace CgiResourceUpload
             _logWindow = logWindow;
         }
 
-        public void Log(string message)
+        public async Task Log(string message)
         {
             var formatted = FormatMessage(message);
-            _logWindow.Text += formatted;
+            await LogToUI(formatted);
             LogToFile(formatted);
         }
 
-        public void LogError(string message)
+        public async Task LogError(string message)
         {
-            Log($"ERROR: {message}");
+            await Log($"ERROR: {message}");
         }
 
         private string FormatMessage(string message)
@@ -33,26 +34,32 @@ namespace CgiResourceUpload
 
         private void LogToFile(string message)
         {
-            const string logFile = "cgi-resource-upload-log.txt";
-
-            var path = GetAbsolutePath(logFile);
+            var path = GetLogFilePath();
             File.AppendAllText(path, message);
         }
 
-        private string GetAbsolutePath(string path)
+        private async Task LogToUI(string message)
         {
+            _logWindow.Text += message;
+            _logWindow.ScrollToEnd();
+            await Task.Delay(1);
+        }
+
+        public string GetLogFilePath()
+        {
+            const string logFile = "cgi-resource-upload-log.txt";
             string output;
 
             try
             {
-                var uri = new Uri(path, UriKind.Absolute);
-                output = path;
+                var uri = new Uri(logFile, UriKind.Absolute);
+                output = logFile;
             }
             catch (UriFormatException)
             {
                 var dllPath = Assembly.GetExecutingAssembly().Location;
                 var dir = Path.GetDirectoryName(dllPath);
-                output = Path.Combine(dir, path);
+                output = Path.Combine(dir, logFile);
             }
 
             return output;

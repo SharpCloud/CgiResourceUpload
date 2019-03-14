@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using SC.Api;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -54,11 +55,11 @@ namespace CgiResourceUpload
                 SpreadsheetTextBox.Text = dialog.FileName;
             }
         }
-        private void ProcessClick(object sender, RoutedEventArgs e)
+        private async void ProcessClick(object sender, RoutedEventArgs e)
         {
             LogTextBox.Clear();
-            _logger.Log("Starting resource upload...");
-            Validate();
+            await _logger.Log("Starting resource upload...");
+            await Validate();
 
             var client = new SharpcloudClient(
               uri: UrlTextBox.Text,
@@ -76,9 +77,11 @@ namespace CgiResourceUpload
                 SourceFolderTextBox.Text,
                 ProcessedFolderTextBox.Text,
                 SpreadsheetTextBox.Text);
+
+            await _logger.Log("Update complete");
         }
 
-        private bool Validate()
+        private async Task<bool> Validate()
         {
             var usernameInvalid = string.IsNullOrWhiteSpace(UsernameTextBox.Text);
             var passwordInvalid = PasswordEntryBox.SecurePassword.Length == 0;
@@ -89,32 +92,32 @@ namespace CgiResourceUpload
 
             if (usernameInvalid)
             {
-                _logger.LogError("SharpCloud username is empty");
+                await _logger.LogError("SharpCloud username is empty");
             }
 
             if (passwordInvalid)
             {
-                _logger.LogError("SharpCloud password is empty");
+                await _logger.LogError("SharpCloud password is empty");
             }
 
             if (sourceInvalid)
             {
-                _logger.LogError("Source directory is empty");
+                await _logger.LogError("Source directory is empty");
             }
 
             if (processedInvalid)
             {
-                _logger.LogError("Processed directory is empty");
+                await _logger.LogError("Processed directory is empty");
             }
 
             if (spreadsheetInvalid)
             {
-                _logger.LogError("Spreadsheet location is empty");
+                await _logger.LogError("Spreadsheet location is empty");
             }
 
             if (urlInvalid)
             {
-                _logger.LogError("SharpCloud story URL is empty");
+                await _logger.LogError("SharpCloud story URL is empty");
             }
 
             var isValid =
@@ -126,6 +129,13 @@ namespace CgiResourceUpload
                 urlInvalid;
 
             return isValid;
+        }
+
+        private void LogHyperlinkClick(object sender, RoutedEventArgs e)
+        {
+            var path = _logger.GetLogFilePath();
+            var arg = "/select, \"" + path + "\"";
+            System.Diagnostics.Process.Start("explorer.exe", arg);
         }
     }
 }

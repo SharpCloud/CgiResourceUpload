@@ -42,6 +42,7 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
                 <RowDefinition />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Grid.ColumnSpan="2">SharpCloud Username</TextBlock>
@@ -65,9 +66,12 @@
             <TextBlock Grid.ColumnSpan="2" Grid.Row="10" Style="{StaticResource TextBlockWithUpperMargin}">SharpCloud Story URL</TextBlock>
             <TextBox Grid.Row="11" Grid.ColumnSpan="2" Name="UrlTextBox" />
 
-            <Button Grid.Row="12" Grid.ColumnSpan="2" Height="30" VerticalAlignment="Bottom" Click="ProcessClick">Process</Button>
+            <TextBlock Grid.Row="12" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,0,0,10" VerticalAlignment="Bottom">
+                <Hyperlink Click="LogHyperlinkClick">Log File</Hyperlink>
+            </TextBlock>
+            
+            <Button Grid.Row="13" Grid.ColumnSpan="2" Height="30" Click="ProcessClick">Process</Button>
         </Grid>
-
-        <TextBox Grid.Column="1" IsReadOnly="True" Name="LogTextBox"></TextBox>
+        <TextBox Grid.Column="1" IsReadOnly="True" Name="LogTextBox" VerticalScrollBarVisibility="Auto" />
     </Grid>
 </Window>
