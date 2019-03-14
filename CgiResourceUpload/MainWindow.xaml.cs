@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using SC.Api;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -58,6 +59,23 @@ namespace CgiResourceUpload
             LogTextBox.Clear();
             _logger.Log("Starting resource upload...");
             Validate();
+
+            var client = new SharpcloudClient(
+              uri: UrlTextBox.Text,
+              username: UsernameTextBox.Text,
+              password: PasswordEntryBox.Password,
+              proxyURL: string.Empty,
+              sendDefaultProxyCredentials: false,
+              proxyUsername: string.Empty,
+              proxyPassword: string.Empty);
+
+            var updater = new ItemUpdater();
+
+            updater.ProcessDirectory(
+                client,
+                SourceFolderTextBox.Text,
+                ProcessedFolderTextBox.Text,
+                SpreadsheetTextBox.Text);
         }
 
         private bool Validate()
