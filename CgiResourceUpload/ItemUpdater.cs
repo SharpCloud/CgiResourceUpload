@@ -8,7 +8,8 @@ namespace CgiResourceUpload
         public void ProcessDirectory(
             ISharpcloudClient2 client,
             string sourceDirectory,
-            string processedDirectory)
+            string processedDirectory,
+            string unprocessedDirectory)
         {
             var directories = Directory.EnumerateDirectories(sourceDirectory);
 

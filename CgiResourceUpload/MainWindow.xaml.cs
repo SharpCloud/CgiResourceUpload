@@ -30,6 +30,11 @@ namespace CgiResourceUpload
             OpenFolderPicker(ProcessedFolderTextBox);
         }
 
+        private void BrowseUnprocessedFolderClick(object sender, RoutedEventArgs e)
+        {
+            OpenFolderPicker(UnprocessedFolderTextBox);
+        }
+
         private void OpenFolderPicker(TextBox target)
         {
             var dialog = new CommonOpenFileDialog
@@ -63,7 +68,8 @@ namespace CgiResourceUpload
             updater.ProcessDirectory(
                 client,
                 SourceFolderTextBox.Text,
-                ProcessedFolderTextBox.Text);
+                ProcessedFolderTextBox.Text,
+                UnprocessedFolderTextBox.Text);
 
             await _logger.Log("Update complete");
         }
@@ -74,6 +80,7 @@ namespace CgiResourceUpload
             var passwordInvalid = PasswordEntryBox.SecurePassword.Length == 0;
             var sourceInvalid = string.IsNullOrWhiteSpace(SourceFolderTextBox.Text);
             var processedInvalid = string.IsNullOrWhiteSpace(ProcessedFolderTextBox.Text);
+            var unprocessedInvalid = string.IsNullOrWhiteSpace(UnprocessedFolderTextBox.Text);
             var urlInvalid = string.IsNullOrWhiteSpace(UrlTextBox.Text);
 
             if (usernameInvalid)
@@ -96,6 +103,11 @@ namespace CgiResourceUpload
                 await _logger.LogError("Processed directory is empty");
             }
 
+            if (unprocessedInvalid)
+            {
+                await _logger.LogError("Unprocessed directory is empty");
+            }
+
             if (urlInvalid)
             {
                 await _logger.LogError("SharpCloud story URL is empty");
@@ -106,6 +118,7 @@ namespace CgiResourceUpload
                 passwordInvalid &&
                 sourceInvalid &&
                 processedInvalid &&
+                unprocessedInvalid &&
                 urlInvalid;
 
             return isValid;
