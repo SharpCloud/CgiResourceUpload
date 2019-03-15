@@ -27,6 +27,12 @@ namespace CgiResourceUpload
             await Log($"ERROR: {message}");
         }
 
+        public async Task LogError(Exception e)
+        {
+            var message = $"{e.Message}{Environment.NewLine}{e.StackTrace}";
+            await LogError(message);
+        }
+
         private string FormatMessage(string message)
         {
             return $"[{DateTime.UtcNow}] {message}{Environment.NewLine}";

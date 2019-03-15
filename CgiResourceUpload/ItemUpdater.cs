@@ -49,7 +49,10 @@ namespace CgiResourceUpload
                 }
                 catch (Exception e)
                 {
-                    await _logger.LogError(e.Message + e.StackTrace);
+                    await _logger.LogError(e);
+                    var destination = Path.Combine(unprocessedDirectory, dirName);
+                    await _logger.Log($"Moving directory to '{destination}'...");
+                    Directory.Move(path, destination);
                 }
             }
 
