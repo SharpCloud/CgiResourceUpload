@@ -43,18 +43,6 @@ namespace CgiResourceUpload
             }
         }
 
-        private void BrowseSpreadsheetClick(object sender, RoutedEventArgs e)
-        {
-            var dialog = new OpenFileDialog
-            {
-                Filter = "Excel Files (*.xls;*.xlsx)|*.xls;*.xlsx"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                SpreadsheetTextBox.Text = dialog.FileName;
-            }
-        }
         private async void ProcessClick(object sender, RoutedEventArgs e)
         {
             LogTextBox.Clear();
@@ -75,8 +63,7 @@ namespace CgiResourceUpload
             updater.ProcessDirectory(
                 client,
                 SourceFolderTextBox.Text,
-                ProcessedFolderTextBox.Text,
-                SpreadsheetTextBox.Text);
+                ProcessedFolderTextBox.Text);
 
             await _logger.Log("Update complete");
         }
@@ -87,7 +74,6 @@ namespace CgiResourceUpload
             var passwordInvalid = PasswordEntryBox.SecurePassword.Length == 0;
             var sourceInvalid = string.IsNullOrWhiteSpace(SourceFolderTextBox.Text);
             var processedInvalid = string.IsNullOrWhiteSpace(ProcessedFolderTextBox.Text);
-            var spreadsheetInvalid = string.IsNullOrWhiteSpace(SpreadsheetTextBox.Text);
             var urlInvalid = string.IsNullOrWhiteSpace(UrlTextBox.Text);
 
             if (usernameInvalid)
@@ -110,11 +96,6 @@ namespace CgiResourceUpload
                 await _logger.LogError("Processed directory is empty");
             }
 
-            if (spreadsheetInvalid)
-            {
-                await _logger.LogError("Spreadsheet location is empty");
-            }
-
             if (urlInvalid)
             {
                 await _logger.LogError("SharpCloud story URL is empty");
@@ -125,7 +106,6 @@ namespace CgiResourceUpload
                 passwordInvalid &&
                 sourceInvalid &&
                 processedInvalid &&
-                spreadsheetInvalid &&
                 urlInvalid;
 
             return isValid;
