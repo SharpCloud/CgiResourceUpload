@@ -1,6 +1,7 @@
-﻿using Microsoft.Win32;
+﻿using CgiResourceUpload.Models;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using SC.Api;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,11 +14,13 @@ namespace CgiResourceUpload
     public partial class MainWindow : Window
     {
         private readonly Logger _logger;
+        private IList<ValidationCheck> _validationChecks;
 
         public MainWindow()
         {
             InitializeComponent();
             _logger = new Logger(LogTextBox);
+            _validationChecks = CreateValidationChecks();
         }
 
         private void BrowseSourceFolderClick(object sender, RoutedEventArgs e)
@@ -52,7 +55,13 @@ namespace CgiResourceUpload
         {
             LogTextBox.Clear();
             await _logger.Log("Starting resource upload...");
-            await Validate();
+            var isValid = await Validate();
+
+            if (!isValid)
+            {
+                await _logger.Log("Update not performed");
+                return;
+            }
 
             var client = new SharpcloudClient(
               uri: UrlTextBox.Text,
@@ -76,52 +85,51 @@ namespace CgiResourceUpload
 
         private async Task<bool> Validate()
         {
-            var usernameInvalid = string.IsNullOrWhiteSpace(UsernameTextBox.Text);
-            var passwordInvalid = PasswordEntryBox.SecurePassword.Length == 0;
-            var sourceInvalid = string.IsNullOrWhiteSpace(SourceFolderTextBox.Text);
-            var processedInvalid = string.IsNullOrWhiteSpace(ProcessedFolderTextBox.Text);
-            var unprocessedInvalid = string.IsNullOrWhiteSpace(UnprocessedFolderTextBox.Text);
-            var urlInvalid = string.IsNullOrWhiteSpace(UrlTextBox.Text);
+            var validationSuccess = true;
 
-            if (usernameInvalid)
+            foreach (var check in _validationChecks)
             {
-                await _logger.LogError("SharpCloud username is empty");
+                var isValid = check.Validate();
+                if (!isValid)
+                {
+                    validationSuccess = false;
+                    await _logger.LogError(check.FailMessage);
+                }
             }
 
-            if (passwordInvalid)
+            return validationSuccess;
+        }
+
+        private IList<ValidationCheck> CreateValidationChecks()
+        {
+            var validationChecks = new[]
             {
-                await _logger.LogError("SharpCloud password is empty");
-            }
+                new ValidationCheck(
+                    () => !string.IsNullOrWhiteSpace(UsernameTextBox.Text),
+                    "SharpCloud username is empty"),
 
-            if (sourceInvalid)
-            {
-                await _logger.LogError("Source directory is empty");
-            }
+                new ValidationCheck(
+                    () => PasswordEntryBox.SecurePassword.Length > 0,
+                    "SharpCloud password is empty"),
 
-            if (processedInvalid)
-            {
-                await _logger.LogError("Processed directory is empty");
-            }
+                new ValidationCheck(
+                    () => !string.IsNullOrWhiteSpace(SourceFolderTextBox.Text),
+                    "Source directory is empty"),
 
-            if (unprocessedInvalid)
-            {
-                await _logger.LogError("Unprocessed directory is empty");
-            }
+                new ValidationCheck(
+                    () => !string.IsNullOrWhiteSpace(ProcessedFolderTextBox.Text),
+                    "Processed directory is empty"),
 
-            if (urlInvalid)
-            {
-                await _logger.LogError("SharpCloud story URL is empty");
-            }
+                new ValidationCheck(
+                    () => !string.IsNullOrWhiteSpace(UnprocessedFolderTextBox.Text),
+                    "Unprocessed directory is empty"),
 
-            var isValid =
-                usernameInvalid &&
-                passwordInvalid &&
-                sourceInvalid &&
-                processedInvalid &&
-                unprocessedInvalid &&
-                urlInvalid;
+                new ValidationCheck(
+                    () => !string.IsNullOrWhiteSpace(UrlTextBox.Text),
+                    "SharpCloud story URL is empty")
+            };
 
-            return isValid;
+            return validationChecks;
         }
 
         private void LogHyperlinkClick(object sender, RoutedEventArgs e)
