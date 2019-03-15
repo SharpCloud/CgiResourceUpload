@@ -1,7 +1,8 @@
 ﻿using CgiResourceUpload.Models;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using SC.Api;
+using SC.API.ComInterop;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,6 +15,11 @@ namespace CgiResourceUpload
     public partial class MainWindow : Window
     {
         private readonly Logger _logger;
+
+        private readonly Regex _urlRegex = new Regex(
+            @"(https?://.*/)html/#/story/([0-9a-z-]*)",
+            RegexOptions.IgnoreCase);
+
         private IList<ValidationCheck> _validationChecks;
 
         public MainWindow()
@@ -63,22 +69,27 @@ namespace CgiResourceUpload
                 return;
             }
 
-            var client = new SharpcloudClient(
-              uri: UrlTextBox.Text,
-              username: UsernameTextBox.Text,
-              password: PasswordEntryBox.Password,
-              proxyURL: string.Empty,
-              sendDefaultProxyCredentials: false,
-              proxyUsername: string.Empty,
-              proxyPassword: string.Empty);
+            var match = _urlRegex.Match(UrlTextBox.Text);
+            var url = match.Groups[1].Value;
+            var storyId = match.Groups[2].Value;
 
-            var updater = new ItemUpdater();
+            var api = new SharpCloudApi(
+               username: UsernameTextBox.Text,
+               password: PasswordEntryBox.Password,
+               url: url,
+               proxyURL: string.Empty,
+               useDefaultProxyCredentials: false,
+               proxyUsername: string.Empty,
+               proxyPassword: string.Empty);
 
-            updater.ProcessDirectory(
-                client,
+            var updater = new ItemUpdater(_logger);
+
+            await updater.ProcessDirectory(
+                api,
                 SourceFolderTextBox.Text,
                 ProcessedFolderTextBox.Text,
-                UnprocessedFolderTextBox.Text);
+                UnprocessedFolderTextBox.Text,
+                storyId);
 
             await _logger.Log("Update complete");
         }
