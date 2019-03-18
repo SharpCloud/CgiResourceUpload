@@ -28,7 +28,8 @@ namespace CgiResourceUpload
             string sourceDirectory,
             string processedDirectory,
             string unprocessedDirectory,
-            string storyId)
+            string storyId,
+            bool isDryRun)
         {
             await _logger.Log($"Loading story with ID '{storyId}'");
             var story = api.LoadStory(storyId);
@@ -38,26 +39,42 @@ namespace CgiResourceUpload
             foreach (var path in directories)
             {
                 var dirName = Path.GetFileName(path);
+                var destination = Path.Combine(processedDirectory, dirName);
 
                 try
                 {
                     await _logger.Log($"Processing '{path}'...");
                     await ProcessSubdirectory(path, dirName, story);
-                    var destination = Path.Combine(processedDirectory, dirName);
-                    await _logger.Log($"Moving directory to '{destination}'...");
-                    Directory.Move(path, destination);
                 }
                 catch (Exception e)
                 {
                     await _logger.LogError(e);
-                    var destination = Path.Combine(unprocessedDirectory, dirName);
-                    await _logger.Log($"Moving directory to '{destination}'...");
-                    Directory.Move(path, destination);
+                    destination = Path.Combine(unprocessedDirectory, dirName);
+                }
+                finally
+                {
+                    var logPrefix = isDryRun
+                        ? "Performing dry run: would move"
+                        : "Moving";
+
+                    await _logger.Log($"{logPrefix} directory to '{destination}'");
+
+                    if (!isDryRun)
+                    {
+                        Directory.Move(path, destination);
+                    }
                 }
             }
 
-            await _logger.Log($"Synchronizing story...");
-            story.Save();
+            if (isDryRun)
+            {
+                await _logger.Log($"Performing dry run: skipping story synchronization");
+            }
+            else
+            {
+                await _logger.Log($"Synchronizing story...");
+                story.Save();
+            }
         }
 
         private async Task ProcessSubdirectory(string dirPath, string dirName, Story story)

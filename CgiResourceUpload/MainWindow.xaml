@@ -66,6 +66,16 @@
             <TextBlock Grid.ColumnSpan="2" Grid.Row="10" Style="{StaticResource TextBlockWithUpperMargin}">SharpCloud Story URL</TextBlock>
             <TextBox Grid.Row="11" Grid.ColumnSpan="2" Name="UrlTextBox" />
 
+            <CheckBox Grid.Row="12"
+                      Grid.ColumnSpan="2"
+                      HorizontalAlignment="Left"
+                      Margin="0,0,0,10"
+                      Name="DryRunCheckBox"
+                      ToolTip="Select this to skip the final story synchronization step"
+                      VerticalAlignment="Bottom">
+                Dry Run
+            </CheckBox>
+            
             <TextBlock Grid.Row="12" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,0,0,10" VerticalAlignment="Bottom">
                 <Hyperlink Click="LogHyperlinkClick">Log File</Hyperlink>
             </TextBlock>

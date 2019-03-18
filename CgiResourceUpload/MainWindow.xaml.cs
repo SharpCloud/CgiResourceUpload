@@ -92,7 +92,8 @@ namespace CgiResourceUpload
                     SourceFolderTextBox.Text,
                     ProcessedFolderTextBox.Text,
                     UnprocessedFolderTextBox.Text,
-                    storyId);
+                    storyId,
+                    DryRunCheckBox.IsChecked.GetValueOrDefault());
 
                 await _logger.Log("Update complete");
             }
