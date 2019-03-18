@@ -1,6 +1,7 @@
 ﻿using CgiResourceUpload.Models;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using SC.API.ComInterop;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -69,29 +70,36 @@ namespace CgiResourceUpload
                 return;
             }
 
-            var match = _urlRegex.Match(UrlTextBox.Text);
-            var url = match.Groups[1].Value;
-            var storyId = match.Groups[2].Value;
+            try
+            {
+                var match = _urlRegex.Match(UrlTextBox.Text);
+                var url = match.Groups[1].Value;
+                var storyId = match.Groups[2].Value;
 
-            var api = new SharpCloudApi(
-               username: UsernameTextBox.Text,
-               password: PasswordEntryBox.Password,
-               url: url,
-               proxyURL: string.Empty,
-               useDefaultProxyCredentials: false,
-               proxyUsername: string.Empty,
-               proxyPassword: string.Empty);
+                var api = new SharpCloudApi(
+                   username: UsernameTextBox.Text,
+                   password: PasswordEntryBox.Password,
+                   url: url,
+                   proxyURL: string.Empty,
+                   useDefaultProxyCredentials: false,
+                   proxyUsername: string.Empty,
+                   proxyPassword: string.Empty);
 
-            var updater = new ItemUpdater(_logger);
+                var updater = new ItemUpdater(_logger);
 
-            await updater.ProcessDirectory(
-                api,
-                SourceFolderTextBox.Text,
-                ProcessedFolderTextBox.Text,
-                UnprocessedFolderTextBox.Text,
-                storyId);
+                await updater.ProcessDirectory(
+                    api,
+                    SourceFolderTextBox.Text,
+                    ProcessedFolderTextBox.Text,
+                    UnprocessedFolderTextBox.Text,
+                    storyId);
 
-            await _logger.Log("Update complete");
+                await _logger.Log("Update complete");
+            }
+            catch (Exception ex)
+            {
+                await _logger.LogError(ex);
+            }
         }
 
         private async Task<bool> Validate()
