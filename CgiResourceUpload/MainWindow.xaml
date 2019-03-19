@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CgiResourceUpload"
         mc:Ignorable="d"
-        Title="CGI Resource Upload"
+        Title="{Binding AppName}"
         Height="500"
         Width="800"
         Icon="favicon.ico"

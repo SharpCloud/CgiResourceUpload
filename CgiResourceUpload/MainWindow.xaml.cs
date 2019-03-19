@@ -23,9 +23,13 @@ namespace CgiResourceUpload
 
         private IList<ValidationCheck> _validationChecks;
 
+        public string AppName => $"CGI Resource Upload v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
+
             _logger = new Logger(LogTextBox);
             _validationChecks = CreateValidationChecks();
         }
