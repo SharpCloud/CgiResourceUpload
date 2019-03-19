@@ -65,7 +65,7 @@ namespace CgiResourceUpload
         private async void ProcessClick(object sender, RoutedEventArgs e)
         {
             LogTextBox.Clear();
-            await _logger.Log("Starting resource upload...");
+            await _logger.Log($"{AppName}: Starting resource upload...");
             var isValid = await Validate();
 
             if (!isValid)
