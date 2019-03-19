@@ -12,7 +12,7 @@ namespace CgiResourceUpload
     public class ItemUpdater
     {
         private readonly Regex _directoryRegex = new Regex(
-            @"([0-9]*)_(.*)_(.*)",
+            @"([0-9]+)_([0-9]+)_(.+)_(.+)",
             RegexOptions.IgnoreCase);
 
         private readonly string[] _resourceFileExtensions = new[] { ".pptx" };
@@ -80,8 +80,8 @@ namespace CgiResourceUpload
         private async Task ProcessSubdirectory(string dirPath, string dirName, Story story)
         {
             var match = _directoryRegex.Match(dirName);
-            var extId = match.Groups[2].Value;
-            var description = match.Groups[3].Value;
+            var extId = match.Groups[3].Value;
+            var description = match.Groups[4].Value;
 
             var item = story.Item_FindByExternalId(extId);
 
@@ -95,6 +95,7 @@ namespace CgiResourceUpload
             {
                 await _logger.Log($"Item with external ID '{extId}' found. Updating...");
                 var resourceIds = item.Resources.Select(r => r.Id).ToList();
+                await _logger.Log($"Removing all existing resources from item with external ID '{extId}'...");
                 foreach (var id in resourceIds)
                 {
                     item.Resource_DeleteById(id);
