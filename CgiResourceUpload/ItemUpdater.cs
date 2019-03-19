@@ -39,20 +39,23 @@ namespace CgiResourceUpload
             foreach (var path in directories)
             {
                 var dirName = Path.GetFileName(path);
-                var destination = Path.Combine(processedDirectory, dirName);
+                var success = true;
 
                 try
                 {
                     await _logger.Log($"Processing '{path}'...");
-                    await ProcessSubdirectory(path, dirName, story);
+                    success = await ProcessSubdirectory(path, dirName, story);
                 }
                 catch (Exception e)
                 {
+                    success = false;
                     await _logger.LogError(e);
-                    destination = Path.Combine(unprocessedDirectory, dirName);
                 }
                 finally
                 {
+                    var toCombine = success ? processedDirectory : unprocessedDirectory;
+                    var destination = Path.Combine(toCombine, dirName);
+
                     var logPrefix = isDryRun
                         ? "Performing dry run: would move"
                         : "Moving";
@@ -77,19 +80,33 @@ namespace CgiResourceUpload
             }
         }
 
-        private async Task ProcessSubdirectory(string dirPath, string dirName, Story story)
+        private async Task<bool> ProcessSubdirectory(string dirPath, string dirName, Story story)
         {
             var match = _directoryRegex.Match(dirName);
+            var year = match.Groups[1].Value;
+            var monthDay = match.Groups[2].Value;
             var extId = match.Groups[3].Value;
-            var description = match.Groups[4].Value;
+            var title = match.Groups[4].Value;
+
+            var folderNameFormatMismatch =
+                string.IsNullOrWhiteSpace(year) ||
+                string.IsNullOrWhiteSpace(monthDay)||
+                string.IsNullOrWhiteSpace(extId) ||
+                string.IsNullOrWhiteSpace(title);
+
+            if (folderNameFormatMismatch)
+            {
+                await _logger.LogWarning($"'{dirPath}' does not have the expected name format of '{{Year}}_{{MMDD}}_{{Unique ID}}_{{Title}}'");
+                return false;
+            }
 
             var item = story.Item_FindByExternalId(extId);
 
             if (item == null)
             {
-                item = story.Item_AddNew(description);
+                item = story.Item_AddNew(title);
                 item.ExternalId = extId;
-                await _logger.Log($"Item created with name '{description}' and external ID '{extId}'");
+                await _logger.Log($"Item created with name '{title}' and external ID '{extId}'");
             }
             else
             {
@@ -113,6 +130,7 @@ namespace CgiResourceUpload
             }
 
             await _logger.Log($"Item update complete");
+            return true;
         }
     }
 }
