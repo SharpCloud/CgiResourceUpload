@@ -9,7 +9,9 @@
         Height="500"
         Width="800"
         Icon="favicon.ico"
-        Background="{StaticResource QCBackground}">
+        Background="{StaticResource QCBackground}"
+        Closing="WindowClosing"
+        Loaded="WindowLoaded">
 
     <Grid Margin="5">
         <Grid.ColumnDefinitions>

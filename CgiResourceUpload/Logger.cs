@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CgiResourceUpload.Interfaces;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -6,7 +7,7 @@ using System.Windows.Controls;
 
 namespace CgiResourceUpload
 {
-    public class Logger
+    public class Logger : ILogger
     {
         private readonly TextBox _logWindow;
 

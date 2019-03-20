@@ -123,6 +123,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Helpers\RegistryHelper.cs" />
+    <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="ItemUpdater.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MainWindow.xaml.cs">

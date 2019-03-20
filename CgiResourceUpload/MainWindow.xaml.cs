@@ -1,8 +1,11 @@
-﻿using CgiResourceUpload.Models;
+﻿using CgiResourceUpload.Helpers;
+using CgiResourceUpload.Models;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using SC.API.ComInterop;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,6 +18,14 @@ namespace CgiResourceUpload
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string UsernameKey = "Username";
+        private const string PasswordKey = "Password";
+        private const string SourceFolderKey = "SourceFolder";
+        private const string ProcessedFolderKey = "ProcessedFolder";
+        private const string UnprocessedFolderKey = "UnprocessedFolder";
+        private const string UrlKey = "Url";
+        private const string DryRunKey = "IsDryRun";
+
         private readonly Logger _logger;
 
         private readonly Regex _urlRegex = new Regex(
@@ -161,6 +172,36 @@ namespace CgiResourceUpload
             var path = _logger.GetLogFilePath();
             var arg = "/select, \"" + path + "\"";
             System.Diagnostics.Process.Start("explorer.exe", arg);
+        }
+
+        private async void WindowClosing(object sender, CancelEventArgs e)
+        {
+            var helper = new RegistryHelper(_logger);
+            await helper.RegWrite(UsernameKey, UsernameTextBox.Text);
+
+            await helper.RegWrite(PasswordKey,
+                Convert.ToBase64String(Encoding.Default.GetBytes(PasswordEntryBox.Password)));
+
+            await helper.RegWrite(SourceFolderKey, SourceFolderTextBox.Text);
+            await helper.RegWrite(ProcessedFolderKey, ProcessedFolderTextBox.Text);
+            await helper.RegWrite(UnprocessedFolderKey, UnprocessedFolderTextBox.Text);
+            await helper.RegWrite(UrlKey, UrlTextBox.Text);
+            await helper.RegWrite(DryRunKey, DryRunCheckBox.IsChecked.GetValueOrDefault());
+        }
+
+        private async void WindowLoaded(object sender, RoutedEventArgs e)
+        {
+            var helper = new RegistryHelper(_logger);
+            UsernameTextBox.Text = await helper.RegRead(UsernameKey, string.Empty);
+
+            PasswordEntryBox.Password = Encoding.Default.GetString(
+                Convert.FromBase64String(await helper.RegRead(PasswordKey, string.Empty)));
+
+            SourceFolderTextBox.Text = await helper.RegRead(SourceFolderKey, string.Empty);
+            ProcessedFolderTextBox.Text = await helper.RegRead(ProcessedFolderKey, string.Empty);
+            UnprocessedFolderTextBox.Text = await helper.RegRead(UnprocessedFolderKey, string.Empty);
+            UrlTextBox.Text = await helper.RegRead(UrlKey, string.Empty);
+            DryRunCheckBox.IsChecked = bool.Parse(await helper.RegRead(DryRunKey, "False"));
         }
     }
 }
