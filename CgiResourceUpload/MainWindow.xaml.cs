@@ -5,6 +5,7 @@ using SC.API.ComInterop;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -75,13 +76,15 @@ namespace CgiResourceUpload
 
         private async void ProcessClick(object sender, RoutedEventArgs e)
         {
+            const string noUpdate = "Update will not be performed";
+
             LogTextBox.Clear();
             await _logger.Log($"{AppName}: Starting resource upload...");
             var isValid = await Validate();
 
             if (!isValid)
             {
-                await _logger.Log("Update not performed");
+                await _logger.Log(noUpdate);
                 return;
             }
 
@@ -100,17 +103,33 @@ namespace CgiResourceUpload
                    proxyUsername: string.Empty,
                    proxyPassword: string.Empty);
 
-                var updater = new ItemUpdater(_logger);
+                await _logger.Log($"Loading story with ID '{storyId}'");
+                var story = api.LoadStory(storyId);
+                await _logger.Log($"Story '{story.Name}' loaded");
 
-                await updater.ProcessDirectory(
-                    api,
-                    SourceFolderTextBox.Text,
-                    ProcessedFolderTextBox.Text,
-                    UnprocessedFolderTextBox.Text,
-                    storyId,
-                    DryRunCheckBox.IsChecked.GetValueOrDefault());
+                var sharepermission = story.StoryAsRoadmap.SharedUsers.FirstOrDefault(su =>
+                    su.User.Username.ToLower() == UsernameTextBox.Text.ToLower())
+                    .Action.ToString();
 
-                await _logger.Log("Update complete");
+                if (sharepermission != null && (sharepermission == "admin" || sharepermission == "owner"))
+                {
+                    var updater = new ItemUpdater(_logger);
+
+                    await updater.ProcessDirectory(
+                        story,
+                        SourceFolderTextBox.Text,
+                        ProcessedFolderTextBox.Text,
+                        UnprocessedFolderTextBox.Text,
+                        storyId,
+                        DryRunCheckBox.IsChecked.GetValueOrDefault());
+
+                    await _logger.Log("Update complete");
+                }
+                else
+                {
+                    await _logger.Log($"'{UsernameTextBox.Text}' does not have permissions to update the specified story");
+                    await _logger.Log(noUpdate);
+                }
             }
             catch (Exception ex)
             {

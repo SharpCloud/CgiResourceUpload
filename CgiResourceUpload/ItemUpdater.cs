@@ -1,5 +1,4 @@
-﻿using SC.API.ComInterop;
-using SC.API.ComInterop.Models;
+﻿using SC.API.ComInterop.Models;
 using System;
 using System.IO;
 using System.Linq;
@@ -24,18 +23,14 @@ namespace CgiResourceUpload
         }
 
         public async Task ProcessDirectory(
-            ISharpCloudApi api,
+            Story story,
             string sourceDirectory,
             string processedDirectory,
             string unprocessedDirectory,
             string storyId,
             bool isDryRun)
         {
-            await _logger.Log($"Loading story with ID '{storyId}'");
-            var story = api.LoadStory(storyId);
-            await _logger.Log($"Story '{story.Name}' loaded");
             var directories = Directory.EnumerateDirectories(sourceDirectory);
-
             foreach (var path in directories)
             {
                 var dirName = Path.GetFileName(path);
