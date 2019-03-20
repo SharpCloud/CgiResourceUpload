@@ -101,7 +101,7 @@
                 </Hyperlink>
             </TextBlock>
             
-            <Button Grid.Row="13" Grid.ColumnSpan="2" Height="30" Click="ProcessClick">Process</Button>
+            <Button Grid.Row="13" Grid.ColumnSpan="2" Height="30" Click="ProcessClick" IsDefault="True">Process</Button>
         </Grid>
 
         <TextBox Background="{StaticResource QCBackground}"
